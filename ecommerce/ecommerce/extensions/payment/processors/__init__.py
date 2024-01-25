@@ -82,7 +82,12 @@ class BasePaymentProcessor(metaclass=abc.ABCMeta):  # pragma: no cover
         Raises:
             KeyError: If no settings found for this payment processor
         """
-        partner_short_code = self.site.siteconfiguration.partner.short_code
+        # partner_short_code = self.site.siteconfiguration.partner.short_code
+        partner_short_code = 'edx'
+        print("\n\n\n\n\n partner_short_code:", partner_short_code)
+        print(settings.PAYMENT_PROCESSOR_CONFIG)
+        print(": ",settings.PAYMENT_PROCESSOR_CONFIG[partner_short_code.lower()][self.NAME.lower()])
+        print("-------------")
         return settings.PAYMENT_PROCESSOR_CONFIG[partner_short_code.lower()][self.NAME.lower()]
 
     @property

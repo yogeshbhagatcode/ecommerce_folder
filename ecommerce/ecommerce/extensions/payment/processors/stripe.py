@@ -116,8 +116,10 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
             stripe_response = stripe.PaymentIntent.create(
                 **self._build_payment_intent_parameters(basket),
                 # This means this payment intent can only be confirmed with secret key (as in, from ecommerce)
-                secret_key_confirmation='required',
+                # secret_key='required',
                 # don't create a new intent for the same basket
+                return_url = "http://local.overhang.io:8000",
+                automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
                 idempotency_key=self.generate_basket_pi_idempotency_key(basket),
             )
             # id is the payment_intent_id from Stripe

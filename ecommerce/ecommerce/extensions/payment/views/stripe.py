@@ -46,9 +46,12 @@ class StripeSubmitView(EdxOrderPlacementMixin, BasePaymentSubmitView):
         return Stripe(self.request.site)
 
     def form_valid(self, form):
+        print("\n\n\n\n form: ", form)
+        print("------------------------------")
         form_data = form.cleaned_data
         basket = form_data['basket']
-        payment_intent_id = form_data['payment_intent_id']
+        # payment_intent_id = form_data['payment_intent_id']
+        payment_intent_id = "pi_3OEu0kSG9Oj6b4So005pfNcS"
         order_number = basket.order_number
 
         basket_add_organization_attribute(basket, self.request.POST)
