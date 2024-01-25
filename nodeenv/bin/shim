@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+export NODE_PATH='/openedx/nodeenv/lib/node_modules'
+export NPM_CONFIG_PREFIX='/openedx/nodeenv'
+export npm_config_prefix='/openedx/nodeenv'
+exec '/openedx/nodeenv/bin/node' "$@"
