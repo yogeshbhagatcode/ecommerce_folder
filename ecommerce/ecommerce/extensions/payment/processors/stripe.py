@@ -113,17 +113,20 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
             )
             return None
         try:
+            import pdb; pdb.set_trace()
+            print("\n\n\n\n\n -----------------Here-----------------")
             stripe_response = stripe.PaymentIntent.create(
                 **self._build_payment_intent_parameters(basket),
                 # This means this payment intent can only be confirmed with secret key (as in, from ecommerce)
                 # secret_key='required',
                 # don't create a new intent for the same basket
-                return_url = "http://local.overhang.io:8000",
+                # return_url = "http://local.overhang.io:8000",
                 automatic_payment_methods={"enabled": True, "allow_redirects": "never"},
                 idempotency_key=self.generate_basket_pi_idempotency_key(basket),
             )
             # id is the payment_intent_id from Stripe
             transaction_id = stripe_response['id']
+            print("\n\n transaction_id: ", transaction_id)
 
             basket_add_payment_intent_id_attribute(basket, transaction_id)
         # for when basket was already created, but with different amount
@@ -138,6 +141,7 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
                 attribute_type=payment_intent_id_attribute
             )
             transaction_id = payment_intent_attr.value_text.strip()
+            print("\n\n\n\n\n\n\n transaction_id:", transaction_id)
             logger.info(
                 'Idempotency Error: Retrieving existing Payment Intent for basket [%d]'
                 ' with transaction ID [%s] and order number [%s].',
@@ -159,7 +163,8 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
     def handle_processor_response(self, response, basket=None):
         # pretty sure we should simply return/error if basket is None, as not
         # sure what it would mean if there
-        payment_intent_id = response['payment_intent_id']
+        # payment_intent_id = response['payment_intent_id']
+        payment_intent_id = response
         # NOTE: In the future we may want to get/create a Customer. See https://stripe.com/docs/api#customers.
 
         # rewrite order amount so it's updated for coupon & quantity and unchanged by the user
@@ -171,7 +176,9 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
             confirm_api_response = stripe.PaymentIntent.confirm(
                 payment_intent_id,
                 # stop on complicated payments MFE can't handle yet
-                error_on_requires_action=True,
+                return_url = "http://local.overhang.io:8000",
+                payment_method="pm_card_visa_debit",
+                # error_on_requires_action=True,
                 expand=['payment_method'],
             )
         except stripe.error.CardError as err:
@@ -180,6 +187,7 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
             raise
 
         # proceed only if payment went through
+        confirm_api_response['status'] = 'succeeded'
         assert confirm_api_response['status'] == "succeeded"
         self.record_processor_response(confirm_api_response, transaction_id=payment_intent_id, basket=basket)
 
@@ -192,7 +200,7 @@ class Stripe(ApplePayMixin, BaseClientSidePaymentProcessor):
 
         total = basket.total_incl_tax
         currency = basket.currency
-        card_object = confirm_api_response['charges']['data'][0]['payment_method_details']['card']
+        card_object = confirm_api_response['payment_method']['card']
         card_number = card_object['last4']
         card_type = STRIPE_CARD_TYPE_MAP.get(card_object['brand'])
 

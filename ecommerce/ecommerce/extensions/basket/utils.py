@@ -412,7 +412,8 @@ def basket_add_payment_intent_id_attribute(basket, payment_intent_id):
         attribute_type=payment_intent_id_attribute,
         basket=basket,
     )
-    basket_attribute.value_text = payment_intent_id.strip()
+    # basket_attribute.value_text = payment_intent_id.strip()
+    basket_attribute.value_text = payment_intent_id
     basket_attribute.save()
 
 

@@ -49,9 +49,10 @@ class StripeSubmitView(EdxOrderPlacementMixin, BasePaymentSubmitView):
         print("\n\n\n\n form: ", form)
         print("------------------------------")
         form_data = form.cleaned_data
+        print("\n\n\n\n", form_data)
         basket = form_data['basket']
         # payment_intent_id = form_data['payment_intent_id']
-        payment_intent_id = "pi_3OEu0kSG9Oj6b4So005pfNcS"
+        payment_intent_id = "pi_3OjhdISG9Oj6b4So0b0QuFWE"
         order_number = basket.order_number
 
         basket_add_organization_attribute(basket, self.request.POST)
